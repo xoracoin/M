@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bekhruz</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#020a14;--teal:#19c9cc;--txt:#b9c2c9}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--txt);font-family:'Noto Serif',Georgia,serif;overflow:hidden;position:relative}
+body::after{content:"";position:fixed;left:0;right:0;bottom:0;height:12%;background:linear-gradient(to top,rgba(20,150,150,.22),transparent);pointer-events:none}
+#confetti{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:2}
+.card{width:min(78vw,420px);padding:30px 18px 28px;border-radius:20px;text-align:center;border:1px solid rgba(25,201,204,.22);background:rgba(3,14,26,.55);box-shadow:0 0 30px rgba(25,201,204,.12),inset 0 0 26px rgba(25,201,204,.05);opacity:0;transform:scale(.96);transition:opacity .9s,transform .9s}
+.card.show{opacity:1;transform:none}
+.avatar{width:72px;height:72px;border-radius:50%;border:3px solid var(--teal);object-fit:cover;box-shadow:0 0 14px rgba(25,201,204,.5);display:block;margin:0 auto 14px;background:#0a1a26}
+h1{margin:0 0 12px;font-size:26px;font-weight:700;color:var(--teal);letter-spacing:.3px}
+.quote{min-height:48px;font-size:14px;line-height:1.55;margin:0 auto 20px;max-width:260px}
+.quote i{display:inline-block;width:1px;height:1em;background:var(--teal);vertical-align:-2px;margin-left:3px;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.tg{display:inline-block;padding:7px 18px;border:1px solid var(--teal);border-radius:20px;color:var(--teal);text-decoration:none;font-size:13px;font-weight:700;transition:.2s}
+.tg:hover,.tg:active{background:var(--teal);color:#021014}
+.fl{position:fixed;left:0;top:0;z-index:3;display:block;opacity:0;transition:opacity 1.2s;will-change:transform;border:0;padding:0;cursor:pointer;text-decoration:none}
+.fl.on{opacity:1}
+.fl img{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none;user-select:none}
+.fl.round{border-radius:50%;overflow:hidden;box-shadow:0 0 12px rgba(255,255,255,.35)}
+.fl.sq{border-radius:8px;overflow:hidden;box-shadow:0 0 8px rgba(255,255,255,.3);border:1px solid #333}
+.fl.btn{border-radius:50%;background:#e9e9ea;display:grid;place-items:center;box-shadow:0 0 12px rgba(255,255,255,.3)}
+.fl.btn img{width:56%;height:56%}
+.fl.btn b{font:700 22px/1 Arial,sans-serif;color:#111}
+.modal{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,8,16,.72);backdrop-filter:blur(6px)}
+.modal.open{display:flex}
+.box{position:relative;width:min(92vw,460px);padding:22px 22px 18px;border-radius:14px;border:1px solid rgba(25,201,204,.4);background:#030f1b;box-shadow:0 0 24px rgba(25,201,204,.18)}
+.box h2{margin:0 0 14px;font-size:20px;color:var(--teal)}
+.box ul{margin:0;padding-left:20px;font-size:14px;line-height:1.55;color:#cfd6db}
+.box li{margin-bottom:6px}
+.x{position:absolute;right:12px;top:12px;width:24px;height:24px;border-radius:50%;border:1px solid var(--teal);background:none;color:var(--teal);font:700 12px Arial;cursor:pointer}
+/* admin */
+#adm{position:fixed;inset:0;z-index:30;display:none;background:#06121e;color:#dfe6ea;overflow:auto;font:14px/1.4 Arial,sans-serif;padding:16px 14px 80px}
+#adm.open{display:block}
+#adm h2{color:var(--teal);margin:0 0 12px;font-family:'Noto Serif',serif}
+#adm fieldset{border:1px solid #1d3a4a;border-radius:10px;margin:0 0 14px;padding:12px}
+#adm legend{color:var(--teal);padding:0 6px}
+#adm label{display:block;margin:8px 0 3px;font-size:12px;color:#8fa3ad}
+#adm input[type=text],#adm textarea{width:100%;padding:9px;border-radius:8px;border:1px solid #244657;background:#0a1d2b;color:#fff;font:inherit}
+#adm textarea{min-height:90px}
+#adm .row{display:flex;gap:10px;align-items:center}
+#adm .row img{width:46px;height:46px;border-radius:8px;object-fit:cover;background:#111;flex:none}
+#adm button,#adm .file{padding:9px 14px;border-radius:8px;border:1px solid var(--teal);background:none;color:var(--teal);cursor:pointer;font:inherit}
+#adm .primary{background:var(--teal);color:#021014;font-weight:700}
+#adm .bar{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:#06121e;border-top:1px solid #1d3a4a;display:flex;gap:8px;flex-wrap:wrap}
+#adm input[type=file]{display:none}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.quote i{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="stage">
+  <div class="card" id="card">
+    <img class="avatar" id="avatar" alt="" draggable="false">
+    <h1 id="name"></h1>
+    <p class="quote"><span id="qt"></span><i></i></p>
+    <a class="tg" id="tg" target="_blank" rel="noopener"></a>
+  </div>
+</div>
+<div id="floaters"></div>
+
+<div class="modal" id="rules"><div class="box">
+  <button class="x" data-close>x</button>
+  <h2 id="rulesTitle"></h2><ul id="rulesList"></ul>
+</div></div>
+
+<!-- ADMIN -->
+<div id="adm">
+  <h2>Admin panel</h2>
+  <fieldset><legend>Asosiy</legend>
+    <label>Ism</label><input type="text" id="a_name">
+    <label>Profil rasmi</label>
+    <div class="row"><img id="a_avatarPrev"><label class="file">Rasm tanlash<input type="file" accept="image/*" id="a_avatar"></label></div>
+    <label>Telegram tugma matni</label><input type="text" id="a_tgText">
+    <label>Telegram havolasi</label><input type="text" id="a_tgLink">
+    <label>Iqtiboslar (har qatorda bittadan)</label><textarea id="a_quotes"></textarea>
+  </fieldset>
+  <fieldset><legend>Uchib yuruvchi rasmlar</legend><div id="a_floats"></div></fieldset>
+  <fieldset><legend>Qoidalar oynasi</legend>
+    <label>Sarlavha</label><input type="text" id="a_rulesTitle">
+    <label>Qoidalar (har qatorda bittadan)</label><textarea id="a_rules"></textarea>
+  </fieldset>
+  <fieldset><legend>Boshqa</legend>
+    <label>Konfetti soni (maks.)</label><input type="text" id="a_conf">
+    <label>Admin paroli</label><input type="text" id="a_pass">
+  </fieldset>
+  <div class="bar">
+    <button class="primary" id="a_save">Saqlash</button>
+    <button id="a_close">Yopish</button>
+    <button id="a_export">Eksport</button>
+    <label class="file">Import<input type="file" accept=".json" id="a_import"></label>
+    <button id="a_reset">Asl holatga</button>
+  </div>
+</div>
+
+<script>
+/* ---------- placeholder rasmlar (admin o'zgartiradi) ---------- */
+const svg=s=>'data:image/svg+xml;utf8,'+encodeURIComponent(s);
+const IMG={
+ avatar:svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#14232f"/><circle cx="50" cy="38" r="18" fill="#c9a58b"/><path d="M12 100c4-28 22-38 38-38s34 10 38 38z" fill="#0b0f14"/><path d="M34 30c2-14 30-16 34 0-6-6-26-6-34 0z" fill="#3a2418"/></svg>'),
+ photo:svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#6d7f8c"/><rect y="60" width="100" height="40" fill="#8a7d70"/><ellipse cx="40" cy="62" rx="7" ry="20" fill="#2b2b33"/><ellipse cx="58" cy="62" rx="7" ry="20" fill="#3a2f2f"/></svg>'),
+ unity:svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#e7e9ec"/><path d="M34 22h22a14 14 0 010 28H44v26H34z M44 32v8h12a4 4 0 000-8z" fill="#1d3552"/><text x="50" y="86" font-size="10" text-anchor="middle" font-family="Arial" font-weight="700" fill="#1d3552">PIX UNITY</text></svg>'),
+ star:svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,5 62,38 96,38 68,58 79,92 50,71 21,92 32,58 4,38 38,38" fill="#9b4fd6" stroke="#d9a8ff" stroke-width="4"/><circle cx="50" cy="50" r="5" fill="#fff"/></svg>'),
+ sim:svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#050505"/><rect x="36" y="20" width="28" height="34" rx="4" fill="none" stroke="#fff" stroke-width="4"/><rect x="44" y="30" width="12" height="12" fill="#2b9be8"/><text x="50" y="76" font-size="14" text-anchor="middle" font-family="Arial" font-weight="700" fill="#2b9be8">PIX SIM</text></svg>'),
+ headset:svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 58V50a30 30 0 0160 0v8" fill="none" stroke="#111" stroke-width="8" stroke-linecap="round"/><rect x="12" y="52" width="16" height="28" rx="6" fill="#111"/><rect x="72" y="52" width="16" height="28" rx="6" fill="#111"/><path d="M80 78q0 12-22 12" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round"/></svg>')
+};
+
+/* ---------- standart sozlamalar ---------- */
+const DEFAULT={
+ name:'Bekhruz',avatar:IMG.avatar,
+ tgText:'Telegram',tgLink:'https://t.me/',
+ quotes:['Einstein: Imagination is more important than knowledge.','Newton: If I have seen further, it is by standing on giants.','Curie: Nothing in life is to be feared, only understood.','Darwin: A man who dares to waste one hour has not discovered the value of life.','Tesla: The future is mine.'],
+ // x,y = ekran foizi; t = paydo bo'lish vaqti (sekund); size px; type: round|sq|btn|rules
+ floats:[
+  {id:'photo',img:IMG.photo,link:'',type:'round',size:44,x:8,y:12,t:1.5,on:true},
+  {id:'unity',img:IMG.unity,link:'',type:'round',size:46,x:91,y:20,t:2.5,on:true},
+  {id:'star',img:IMG.star,link:'',type:'star',size:34,x:7,y:38,t:4,on:true},
+  {id:'sim',img:IMG.sim,link:'https://t.me/pixsimbot',type:'sq',size:36,x:91,y:48,t:5,on:true},
+  {id:'help',img:IMG.headset,link:'https://t.me/pixaloqabot',type:'btn',size:44,x:8,y:63,t:7,on:true},
+  {id:'rules',img:'',link:'',type:'rules',size:44,x:91,y:76,t:8.5,on:true}
+ ],
+ rulesTitle:"So'zlashuv qoidalari",
+ rules:["Hurmat bilan yozing.","Spam va reklama yubormang.","Shaxsiy ma'lumotlarni so'ramang va tarqatmang.","Murojaatingizni qisqa va tushunarli yozing."],
+ confetti:170,pass:'admin123'
+};
+const KEY='site_cfg_v1';
+let C=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s)return Object.assign({},DEFAULT,s)}catch(e){}return JSON.parse(JSON.stringify(DEFAULT))}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(C))}catch(e){alert("Saqlab bo'lmadi (rasm juda katta bo'lishi mumkin)")}}
+
+/* ---------- sahifani chizish ---------- */
+const $=id=>document.getElementById(id);
+function render(){
+ $('name').textContent=C.name;$('avatar').src=C.avatar;
+ const tg=$('tg');tg.textContent=C.tgText;tg.href=C.tgLink;
+ $('rulesTitle').textContent=C.rulesTitle;
+ $('rulesList').innerHTML='';C.rules.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('rulesList').appendChild(li)});
+ buildFloaters();
+}
+
+/* ---------- yozuv effekti ---------- */
+let qi=0,started=false;
+function typeLoop(){
+ const qs=C.quotes.length?C.quotes:[''];const q=qs[qi%qs.length];let i=0;
+ const el=$('qt');
+ (function step(){
+  if(i<=q.length){el.textContent=q.slice(0,i++);setTimeout(step,70)}
+  else setTimeout(()=>erase(q),2600)
+ })();
+ function erase(q){let j=q.length;(function s(){if(j>=0){el.textContent=q.slice(0,j--);setTimeout(s,28)}else{qi++;setTimeout(typeLoop,350)}})()}
+}
+
+/* ---------- uchib yuruvchi elementlar ---------- */
+let F=[],T0=performance.now();
+function buildFloaters(){
+ const box=$('floaters');box.innerHTML='';F=[];
+ C.floats.forEach((f,i)=>{
+  if(!f.on)return;
+  const el=document.createElement(f.type==='rules'?'button':'a');
+  el.className='fl '+(f.type==='btn'||f.type==='rules'?'btn':f.type==='sq'?'sq':f.type==='star'?'':'round');
+  el.style.width=el.style.height=f.size+'px';
+  if(f.type==='rules'){el.innerHTML='<b>!</b>';el.onclick=()=>$('rules').classList.add('open')}
+  else{
+   el.innerHTML='<img alt="" draggable="false">';el.querySelector('img').src=f.img;
+   if(f.link){el.href=f.link;el.target='_blank';el.rel='noopener'}
+  }
+  box.appendChild(el);
+  F.push({el,f,ph:i*1.7,sx:.5+i*.13});
+ });
+}
+function loop(now){
+ const t=(now-T0)/1000,W=innerWidth,H=innerHeight;
+ F.forEach(o=>{
+  const f=o.f;if(t>f.t)o.el.classList.add('on');
+  const x=f.x/100*W-f.size/2+Math.sin(t*.5*o.sx+o.ph)*9;
+  const y=f.y/100*H-f.size/2+Math.cos(t*.4*o.sx+o.ph)*12;
+  o.el.style.transform='translate('+x+'px,'+y+'px)';
+ });
+ drawConfetti(t);
+ requestAnimationFrame(loop);
+}
+
+/* ---------- konfetti (vaqt o'tgan sari ko'payadi) ---------- */
+const cv=$('confetti'),cx=cv.getContext('2d');let P=[];
+const COL=['#e53ad0','#3a5cf0','#19d1c8','#f0c81e','#2fd24a','#f0368a','#8a3af0'];
+function size(){cv.width=innerWidth*devicePixelRatio;cv.height=innerHeight*devicePixelRatio}
+addEventListener('resize',size);size();
+function spawn(){return{x:Math.random()*innerWidth,y:-12,s:2+Math.random()*(Math.random()<.12?12:5),vy:14+Math.random()*34,vx:(Math.random()-.5)*10,r:Math.random()*6.28,vr:(Math.random()-.5)*1.5,c:COL[Math.random()*COL.length|0],a:.35+Math.random()*.6,b:Math.random()<.25}}
+let last=0;
+function drawConfetti(t){
+ const dt=Math.min(.05,t-last);last=t;
+ const target=t<4?0:Math.min(C.confetti,(t-4)*14); // 4-sekunddan boshlanadi, asta-sekin ko'payadi
+ while(P.length<target)P.push(spawn());
+ cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);cx.clearRect(0,0,innerWidth,innerHeight);
+ for(let i=0;i<P.length;i++){const p=P[i];
+  p.y+=p.vy*dt;p.x+=p.vx*dt;p.r+=p.vr*dt;
+  if(p.y>innerHeight+14){P[i]=spawn();continue}
+  cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.globalAlpha=p.a;cx.fillStyle=p.c;
+  if(p.b){cx.shadowColor=p.c;cx.shadowBlur=10}
+  cx.fillRect(-p.s/2,-p.s/2,p.s,p.s);cx.restore();
+ }
+}
+
+/* ---------- modal ---------- */
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove('open'));
+$('rules').addEventListener('click',e=>{if(e.target.id==='rules')$('rules').classList.remove('open')});
+
+/* ---------- ADMIN ---------- */
+// Ochish: profil rasmiga 5 marta tez bosing, yoki manzilga #admin qo'shing
+let taps=0,tt;
+$('avatar').addEventListener('click',()=>{taps++;clearTimeout(tt);tt=setTimeout(()=>taps=0,1200);if(taps>=5){taps=0;openAdmin()}});
+if(location.hash==='#admin')setTimeout(openAdmin,300);
+function openAdmin(){
+ const p=prompt('Admin paroli:');if(p===null)return;
+ if(p!==C.pass){alert("Parol noto'g'ri");return}
+ fillAdmin();$('adm').classList.add('open');
+}
+let draft;
+function fillAdmin(){
+ draft=JSON.parse(JSON.stringify(C));
+ $('a_name').value=draft.name;$('a_avatarPrev').src=draft.avatar;
+ $('a_tgText').value=draft.tgText;$('a_tgLink').value=draft.tgLink;
+ $('a_quotes').value=draft.quotes.join('\n');
+ $('a_rulesTitle').value=draft.rulesTitle;$('a_rules').value=draft.rules.join('\n');
+ $('a_conf').value=draft.confetti;$('a_pass').value=draft.pass;
+ const box=$('a_floats');box.innerHTML='';
+ const names={photo:'Rasm (yuqori chap)',unity:'PIX UNITY',star:'Yulduz',sim:'PIX SIM',help:'Aloqa (quloqchin)',rules:'Qoidalar (!) tugmasi'};
+ draft.floats.forEach((f,i)=>{
+  const d=document.createElement('div');d.style.cssText='border-top:1px solid #1d3a4a;padding-top:8px;margin-top:8px';
+  d.innerHTML='<b>'+(names[f.id]||f.id)+'</b> <label style="display:inline"><input type="checkbox" '+(f.on?'checked':'')+'> ko\'rinsin</label>'+
+   (f.type==='rules'?'':'<div class="row" style="margin-top:6px"><img src="'+f.img+'"><label class="file">Rasm tanlash<input type="file" accept="image/*"></label></div><label>Havola (bosilganda ochiladi)</label><input type="text" value="'+f.link+'">')+
+   '<label>Paydo bo\'lish vaqti (sek) / o\'lchami (px)</label><div class="row"><input type="text" value="'+f.t+'"><input type="text" value="'+f.size+'"></div>';
+  box.appendChild(d);
+  const ins=d.querySelectorAll('input');
+  ins[0].onchange=e=>f.on=e.target.checked;
+  if(f.type!=='rules'){
+   ins[1].onchange=e=>readImg(e.target.files[0],96,u=>{f.img=u;d.querySelector('img').src=u});
+   ins[2].oninput=e=>f.link=e.target.value;
+   ins[3].oninput=e=>f.t=+e.target.value||0;ins[4].oninput=e=>f.size=+e.target.value||40;
+  }else{ins[1].oninput=e=>f.t=+e.target.value||0;ins[2].oninput=e=>f.size=+e.target.value||40}
+ });
+}
+function readImg(file,max,cb){
+ if(!file)return;const r=new FileReader();
+ r.onload=()=>{const im=new Image();im.onload=()=>{
+  const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');
+  c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  cb(c.toDataURL('image/webp',.85));};im.src=r.result};
+ r.readAsDataURL(file);
+}
+$('a_avatar').onchange=e=>readImg(e.target.files[0],400,u=>{draft.avatar=u;$('a_avatarPrev').src=u});
+$('a_save').onclick=()=>{
+ draft.name=$('a_name').value;draft.tgText=$('a_tgText').value;draft.tgLink=$('a_tgLink').value;
+ draft.quotes=$('a_quotes').value.split('\n').map(s=>s.trim()).filter(Boolean);
+ draft.rulesTitle=$('a_rulesTitle').value;draft.rules=$('a_rules').value.split('\n').map(s=>s.trim()).filter(Boolean);
+ draft.confetti=+$('a_conf').value||0;draft.pass=$('a_pass').value||'admin123';
+ C=draft;save();render();T0=performance.now();$('adm').classList.remove('open');
+};
+$('a_close').onclick=()=>$('adm').classList.remove('open');
+$('a_reset').onclick=()=>{if(confirm('Hammasi asl holatga qaytsinmi?')){localStorage.removeItem(KEY);C=JSON.parse(JSON.stringify(DEFAULT));render();fillAdmin()}};
+$('a_export').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(C)],{type:'application/json'}));a.download='site-config.json';a.click()};
+$('a_import').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{C=Object.assign({},DEFAULT,JSON.parse(r.result));save();render();fillAdmin()}catch(x){alert('Fayl noto\'g\'ri')}};r.readAsText(f)};
+
+/* ---------- start ---------- */
+render();
+setTimeout(()=>{$('card').classList.add('show')},1200);
+setTimeout(()=>{if(!started){started=true;typeLoop()}},2200);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
